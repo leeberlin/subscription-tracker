@@ -14,10 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
+          - platform: 'macos-14'
             args: '--target aarch64-apple-darwin'
             name: 'macOS (Apple Silicon)'
-          - platform: 'macos-latest'
+          - platform: 'macos-13'
             args: '--target x86_64-apple-darwin'
             name: 'macOS (Intel)'
           - platform: 'ubuntu-22.04'
