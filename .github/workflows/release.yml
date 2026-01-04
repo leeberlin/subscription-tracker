@@ -16,58 +16,82 @@ jobs:
         include:
           - platform: 'macos-latest'
             args: '--target aarch64-apple-darwin'
+            name: 'macOS (Apple Silicon)'
           - platform: 'macos-latest'
             args: '--target x86_64-apple-darwin'
+            name: 'macOS (Intel)'
           - platform: 'ubuntu-22.04'
             args: ''
+            name: 'Linux'
           - platform: 'windows-latest'
             args: ''
+            name: 'Windows'
 
     runs-on: ${{ matrix.platform }}
+    name: Build ${{ matrix.name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'npm'
 
-      - name: Install Rust stable
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - name: Install dependencies (Ubuntu only)
+      - name: Install dependencies (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
           releaseName: 'Subscription Tracker v__VERSION__'
           releaseBody: |
-            ## 📦 Subscription Tracker
+            ## 📦 Subscription Tracker v__VERSION__
             
-            Ứng dụng quản lý subscription và chia sẻ gói đăng ký.
+            A modern desktop application for managing shared subscriptions and tracking member payments.
             
-            ### Tải xuống
-            - **Windows**: Tải file `.msi` hoặc `.exe`
-            - **macOS (Apple Silicon)**: Tải file `*_aarch64.dmg`
-            - **macOS (Intel)**: Tải file `*_x64.dmg`  
-            - **Linux**: Tải file `.deb` hoặc `.AppImage`
+            ### 📥 Downloads
             
-            ### Hướng dẫn
-            1. Tải file phù hợp với hệ điều hành
-            2. Cài đặt và mở app
-            3. Vào Settings > Email Reminders > Nhấn "Hướng dẫn" để cấu hình EmailJS
-          releaseDraft: true
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | **Windows** | `.msi` or `.exe` | Recommended: Use `.msi` installer |
+            | **macOS (Apple Silicon)** | `*_aarch64.dmg` | For M1/M2/M3 Macs |
+            | **macOS (Intel)** | `*_x64.dmg` | For Intel-based Macs |
+            | **Linux (Debian/Ubuntu)** | `.deb` | Use `sudo dpkg -i <file>.deb` |
+            | **Linux (Universal)** | `.AppImage` | Make executable and run |
+            
+            ### ✨ Features
+            - 📊 Dashboard with analytics and charts
+            - 👥 Member and family group management
+            - 🔔 Email payment reminders via EmailJS
+            - 🌍 Multi-language support (EN/VI)
+            - 🎨 Dark/Light theme
+            - 💱 Multi-currency support
+            
+            ### 🚀 Getting Started
+            1. Download the appropriate file for your platform
+            2. Install and launch the application
+            3. Go to **Settings > Email Reminders > Guide** to configure notifications
+            
+            ### 📖 Documentation
+            See the [README](https://github.com/leeberlin/subscription-tracker#readme) for full documentation.
+            
+          releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
