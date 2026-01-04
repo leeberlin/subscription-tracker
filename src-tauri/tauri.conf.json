@@ -62,9 +62,6 @@
     },
     "macOS": {
       "minimumSystemVersion": "10.13"
-    },
-    "linux": {
-      "appId": "com.leeberlin.subscription-tracker"
     }
   }
 }
