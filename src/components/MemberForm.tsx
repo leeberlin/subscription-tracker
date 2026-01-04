@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Member, MemberFormData } from '../types/subscription';
 import { getTodayString, getDefaultExpirationDate } from '../utils/dateUtils';
-import { X, Mail, User, Calendar, Wallet, FileText, Sparkles, UserPlus, Edit3 } from 'lucide-react';
+import { X, Mail, User, Calendar, Wallet, FileText, Sparkles, UserPlus, Edit3, ChevronDown } from 'lucide-react';
 import './MemberForm.css';
 
 interface MemberFormProps {
@@ -12,6 +12,16 @@ interface MemberFormProps {
     onSubmit: (data: MemberFormData) => void;
     onCancel: () => void;
 }
+
+const CURRENCY_OPTIONS = [
+    { code: 'VND', symbol: '₫', name: 'Việt Nam Đồng' },
+    { code: 'EUR', symbol: '€', name: 'Euro' },
+    { code: 'USD', symbol: '$', name: 'US Dollar' },
+    { code: 'GBP', symbol: '£', name: 'British Pound' },
+    { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+    { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
+    { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
+];
 
 const initialFormData: MemberFormData = {
     name: '',
@@ -35,7 +45,9 @@ export const MemberForm: React.FC<MemberFormProps> = ({
         amountPaid: defaultAmount,
     });
     const [errors, setErrors] = useState<Partial<Record<keyof MemberFormData, string>>>({});
+    const [selectedCurrency, setSelectedCurrency] = useState(currency);
     const [amountString, setAmountString] = useState(defaultAmount.toString());
+    const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
     useEffect(() => {
         if (member) {
@@ -130,16 +142,13 @@ export const MemberForm: React.FC<MemberFormProps> = ({
     };
 
     const getCurrencySymbol = (curr: string) => {
-        const symbols: Record<string, string> = {
-            'VND': '₫',
-            'USD': '$',
-            'EUR': '€',
-            'NGN': '₦',
-            'TRY': '₺',
-            'GBP': '£',
-            'JPY': '¥',
-        };
-        return symbols[curr] || curr;
+        const found = CURRENCY_OPTIONS.find(c => c.code === curr);
+        return found ? found.symbol : curr;
+    };
+
+    const handleCurrencySelect = (currencyCode: string) => {
+        setSelectedCurrency(currencyCode);
+        setShowCurrencyDropdown(false);
     };
 
     return (
@@ -226,14 +235,43 @@ export const MemberForm: React.FC<MemberFormProps> = ({
                         <div className={`form-field ${errors.amountPaid ? 'has-error' : ''}`}>
                             <label htmlFor="amountPaid">
                                 <Wallet size={14} />
-                                <span>Số tiền ({getCurrencySymbol(currency)})</span>
+                                <span>Số tiền đã trả</span>
                             </label>
-                            <div className="input-wrapper amount-input">
-                                <span className="currency-symbol">{getCurrencySymbol(currency)}</span>
+                            <div className="input-wrapper amount-input-group">
+                                {/* Currency Selector */}
+                                <div className="currency-selector">
+                                    <button
+                                        type="button"
+                                        className="currency-btn"
+                                        onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
+                                    >
+                                        <span className="currency-symbol">{getCurrencySymbol(selectedCurrency)}</span>
+                                        <span className="currency-code">{selectedCurrency}</span>
+                                        <ChevronDown size={12} />
+                                    </button>
+                                    {showCurrencyDropdown && (
+                                        <div className="currency-dropdown">
+                                            {CURRENCY_OPTIONS.map(curr => (
+                                                <button
+                                                    key={curr.code}
+                                                    type="button"
+                                                    className={`currency-option ${selectedCurrency === curr.code ? 'active' : ''}`}
+                                                    onClick={() => handleCurrencySelect(curr.code)}
+                                                >
+                                                    <span className="curr-symbol">{curr.symbol}</span>
+                                                    <span className="curr-code">{curr.code}</span>
+                                                    <span className="curr-name">{curr.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {/* Amount Input */}
                                 <input
                                     id="amountPaid"
                                     type="text"
                                     inputMode="numeric"
+                                    className="amount-field"
                                     value={amountString}
                                     onChange={e => handleAmountChange(e.target.value.replace(/[^0-9.]/g, ''))}
                                     placeholder="0"

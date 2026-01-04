@@ -357,3 +357,155 @@
         font-size: 1.125rem;
     }
 }
+
+/* ===== Currency Selector ===== */
+.amount-input-group {
+    display: flex;
+    gap: 0;
+    position: relative;
+}
+
+.currency-selector {
+    position: relative;
+}
+
+.currency-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.875rem 0.75rem;
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    border: 2px solid transparent;
+    border-radius: 12px 0 0 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    justify-content: center;
+}
+
+.currency-btn:hover {
+    filter: brightness(1.1);
+}
+
+.currency-btn .currency-symbol {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.currency-btn .currency-code {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.currency-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 200px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    overflow: hidden;
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.currency-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+}
+
+.currency-option:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.currency-option.active {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary);
+}
+
+.currency-option .curr-symbol {
+    font-size: 1.125rem;
+    font-weight: 700;
+    width: 24px;
+    text-align: center;
+    color: var(--primary);
+}
+
+.currency-option .curr-code {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.currency-option .curr-name {
+    flex: 1;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-align: right;
+}
+
+.amount-input-group .amount-field {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    transition: all 0.2s ease;
+}
+
+.amount-input-group .amount-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    background: var(--card-bg);
+}
+
+/* ===== Date Display Hint (DD/MM/YYYY) ===== */
+.date-with-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.date-with-display input[type="date"] {
+    width: 100%;
+}
+
+.date-format-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+}
