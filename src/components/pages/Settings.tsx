@@ -469,7 +469,7 @@ const Settings: React.FC = () => {
 
                         <h2 className="about-title">Subscription Tracker</h2>
                         <div className="about-version">
-                            <span className="version-badge">v0.1.2</span>
+                            <span className="version-badge">v0.1.3</span>
                             <span className="version-desc">
                                 {settings.language === 'vi' ? 'Quản lý đăng ký dùng chung' : 'Shared subscription management'}
                             </span>

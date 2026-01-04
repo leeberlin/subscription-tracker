@@ -55,14 +55,14 @@ jobs:
         run: npm ci
 
       - name: Build and release
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v__VERSION__
-          releaseName: 'Subscription Tracker v__VERSION__'
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Subscription Tracker ${{ github.ref_name }}'
           releaseBody: |
-            ## 📦 Subscription Tracker v__VERSION__
+            ## 📦 Subscription Tracker ${{ github.ref_name }}
             
             A modern desktop application for managing shared subscriptions and tracking member payments.
             
@@ -92,6 +92,6 @@ jobs:
             ### 📖 Documentation
             See the [README](https://github.com/leeberlin/subscription-tracker#readme) for full documentation.
             
-          releaseDraft: false
+          releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
