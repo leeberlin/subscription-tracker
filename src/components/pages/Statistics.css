@@ -1,0 +1,30 @@
+/* ===== Statistics Page ===== */
+.statistics-page {
+    padding-top: 1.5rem;
+}
+
+.statistics-page .page-header {
+    margin-bottom: 2rem;
+}
+
+.statistics-page .page-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+    color: var(--text-tertiary);
+    font-size: 0.9375rem;
+    margin: 0;
+}
+
+.stats-wrapper {
+    margin-bottom: 2rem;
+}
+
+.charts-wrapper {
+    margin-top: 2rem;
+}

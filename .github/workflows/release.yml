@@ -1,0 +1,73 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (Ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'Subscription Tracker v__VERSION__'
+          releaseBody: |
+            ## 📦 Subscription Tracker
+            
+            Ứng dụng quản lý subscription và chia sẻ gói đăng ký.
+            
+            ### Tải xuống
+            - **Windows**: Tải file `.msi` hoặc `.exe`
+            - **macOS (Apple Silicon)**: Tải file `*_aarch64.dmg`
+            - **macOS (Intel)**: Tải file `*_x64.dmg`  
+            - **Linux**: Tải file `.deb` hoặc `.AppImage`
+            
+            ### Hướng dẫn
+            1. Tải file phù hợp với hệ điều hành
+            2. Cài đặt và mở app
+            3. Vào Settings > Email Reminders > Nhấn "Hướng dẫn" để cấu hình EmailJS
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
