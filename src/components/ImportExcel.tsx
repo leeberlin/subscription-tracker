@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { MemberFormData } from '../types/subscription';
 import { Upload, FileSpreadsheet, X, Check, AlertCircle, Download, Users } from 'lucide-react';
@@ -184,10 +184,6 @@ export const ImportExcel: React.FC<ImportExcelProps> = ({ onImport, onClose, sub
     };
 
     const downloadTemplate = () => {
-        // Include existing family names in template if available
-        const familyHint = existingFamilies.length > 0
-            ? `Ví dụ: ${existingFamilies.slice(0, 3).join(', ')}${existingFamilies.length > 3 ? '...' : ''}`
-            : 'Nhà A / Family A';
 
         const template = [
             ['Tên', 'Email', 'Số điện thoại', 'Ngày tham gia', 'Số tiền', 'Ngày thanh toán', 'Family/Nhóm', 'Ghi chú', 'Zalo', 'Discord', 'Telegram'],
@@ -217,14 +213,7 @@ export const ImportExcel: React.FC<ImportExcelProps> = ({ onImport, onClose, sub
         XLSX.writeFile(wb, `${subscriptionName.replace(/[^a-zA-Z0-9]/g, '_')}_members_template.xlsx`);
     };
 
-    // Get unique family names from parsed data
-    const detectedFamilies = useMemo(() => {
-        const families = new Set<string>();
-        parsedData.forEach(m => {
-            if (m.familyName) families.add(m.familyName);
-        });
-        return Array.from(families);
-    }, [parsedData]);
+
 
     const validCount = parsedData.filter(m => m.isValid).length;
     const invalidCount = parsedData.filter(m => !m.isValid).length;
