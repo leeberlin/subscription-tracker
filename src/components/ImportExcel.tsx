@@ -184,7 +184,6 @@ export const ImportExcel: React.FC<ImportExcelProps> = ({ onImport, onClose, sub
     };
 
     const downloadTemplate = () => {
-
         const template = [
             ['Tên', 'Email', 'Số điện thoại', 'Ngày tham gia', 'Số tiền', 'Ngày thanh toán', 'Family/Nhóm', 'Ghi chú', 'Zalo', 'Discord', 'Telegram'],
             ['Nguyễn Văn A', 'a@email.com', '0901234567', '01/01/2024', '100000', '01/02/2024', existingFamilies[0] || 'Nhà A', 'Ghi chú', '0901234567', 'user#1234', '@username'],
@@ -254,7 +253,7 @@ export const ImportExcel: React.FC<ImportExcelProps> = ({ onImport, onClose, sub
                                 onChange={handleFileUpload}
                                 style={{ display: 'none' }}
                             />
-                            <button className="template-btn" onClick={downloadTemplate}>
+                            <button type="button" className="template-btn" onClick={downloadTemplate}>
                                 <Download size={16} />
                                 Tải file mẫu
                             </button>

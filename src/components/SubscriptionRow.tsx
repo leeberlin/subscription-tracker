@@ -123,7 +123,7 @@ export const SubscriptionRow: React.FC<SubscriptionRowProps> = ({
                         <div className="service-details">
                             <h3 className="service-name">{subscription.appName}</h3>
                             <span className="service-price">
-                                {formatCurrency(subscription.price, subscription.currency)}/tháng
+                                {formatCurrency(subscription.price, subscription.currency)}{subscription.billingCycle === 'yearly' ? '/năm' : '/tháng'}
                             </span>
                         </div>
                     </div>

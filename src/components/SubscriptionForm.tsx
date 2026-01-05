@@ -135,7 +135,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
         <div className="form-overlay" onClick={onCancel}>
             <div className="form-modal" onClick={e => e.stopPropagation()}>
                 <div className="form-header">
-                    <h2>{subscription ? 'Edit Subscription' : 'Add New Subscription'}</h2>
+                    <h2>{subscription ? 'Sửa gói đăng ký' : 'Thêm gói đăng ký mới'}</h2>
                     <button className="close-btn" onClick={onCancel}>
                         <X size={20} />
                     </button>
@@ -144,7 +144,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                 <form onSubmit={handleSubmit} className="form-content">
                     {/* Popular Services Quick Select */}
                     <div className="form-group">
-                        <label>Quick Select Popular Services</label>
+                        <label>Chọn nhanh dịch vụ phổ biến</label>
                         <div className="popular-services">
                             {PopularServices.slice(0, 6).map(service => {
                                 const icon = ServiceIcons[service.key];
@@ -171,20 +171,20 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                 onClick={() => setShowIconPicker(true)}
                             >
                                 <span className="service-icon">+</span>
-                                <span className="service-name">More</span>
+                                <span className="service-name">Thêm</span>
                             </button>
                         </div>
                     </div>
 
                     {/* App Name Input */}
                     <div className="form-group">
-                        <label htmlFor="appName">App Name *</label>
+                        <label htmlFor="appName">Tên ứng dụng *</label>
                         <input
                             id="appName"
                             type="text"
                             value={formData.appName}
                             onChange={e => handleChange('appName', e.target.value)}
-                            placeholder="e.g. Netflix, Spotify, ChatGPT..."
+                            placeholder="VD: Netflix, Spotify, ChatGPT..."
                             className={errors.appName ? 'error' : ''}
                         />
                         {errors.appName && <span className="error-message">{errors.appName}</span>}
@@ -192,7 +192,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
                     {/* Category Selection */}
                     <div className="form-group">
-                        <label>Category</label>
+                        <label>Danh mục</label>
                         <div className="category-grid">
                             {(Object.entries(CATEGORY_CONFIG) as [SubscriptionCategory, typeof CATEGORY_CONFIG[SubscriptionCategory]][]).map(
                                 ([key, config]) => (
@@ -213,7 +213,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                     {/* Dates */}
                     <div className="form-row">
                         <div className="form-group">
-                            <label htmlFor="purchaseDate">Start Date *</label>
+                            <label htmlFor="purchaseDate">Ngày bắt đầu *</label>
                             <input
                                 id="purchaseDate"
                                 type="date"
@@ -225,7 +225,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="expirationDate">Expiration Date *</label>
+                            <label htmlFor="expirationDate">Ngày hết hạn *</label>
                             <input
                                 id="expirationDate"
                                 type="date"
@@ -239,7 +239,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
 
                     {/* Quick Duration */}
                     <div className="form-group">
-                        <label>Quick Duration</label>
+                        <label>Thời hạn nhanh</label>
                         <div className="quick-duration-buttons">
                             {[1, 3, 6, 12].map(months => (
                                 <button
@@ -248,7 +248,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                     className="quick-duration-btn"
                                     onClick={() => handleQuickDuration(months)}
                                 >
-                                    {months} month{months > 1 ? 's' : ''}
+                                    {months} tháng
                                 </button>
                             ))}
                         </div>
@@ -257,7 +257,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                     {/* Price */}
                     <div className="form-row">
                         <div className="form-group flex-2">
-                            <label htmlFor="price">Price</label>
+                            <label htmlFor="price">Giá tiền</label>
                             <input
                                 id="price"
                                 type="number"
@@ -275,7 +275,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                         </div>
 
                         <div className="form-group flex-1">
-                            <label htmlFor="currency">Currency</label>
+                            <label htmlFor="currency">Tiền tệ</label>
                             <select
                                 id="currency"
                                 value={formData.currency}
@@ -288,16 +288,28 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                 ))}
                             </select>
                         </div>
+
+                        <div className="form-group flex-1">
+                            <label htmlFor="billingCycle">Chu kỳ</label>
+                            <select
+                                id="billingCycle"
+                                value={formData.billingCycle || 'monthly'}
+                                onChange={e => handleChange('billingCycle', e.target.value as 'monthly' | 'yearly')}
+                            >
+                                <option value="monthly">Hàng tháng</option>
+                                <option value="yearly">Hàng năm</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Notes */}
                     <div className="form-group">
-                        <label htmlFor="notes">Notes</label>
+                        <label htmlFor="notes">Ghi chú</label>
                         <textarea
                             id="notes"
                             value={formData.notes}
                             onChange={e => handleChange('notes', e.target.value)}
-                            placeholder="Additional information..."
+                            placeholder="Thông tin bổ sung..."
                             rows={2}
                         />
                     </div>
@@ -311,7 +323,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                 onChange={e => handleChange('autoRenew', e.target.checked)}
                             />
                             <span className="checkmark"></span>
-                            <span>Auto-renewal enabled</span>
+                            <span>Tự động gia hạn</span>
                         </label>
                     </div>
 
@@ -324,20 +336,20 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                 onChange={e => handleChange('isShared', e.target.checked)}
                             />
                             <span className="checkmark"></span>
-                            <span>Shared subscription (Family plan)</span>
+                            <span>Gói chia sẻ (Family plan)</span>
                         </label>
                     </div>
 
                     {formData.isShared && (
                         <div className="form-group">
-                            <label htmlFor="maxMembers">Max Members</label>
+                            <label htmlFor="maxMembers">Số thành viên tối đa</label>
                             <input
                                 id="maxMembers"
                                 type="number"
                                 value={formData.maxMembers || ''}
                                 onChange={e => handleChange('maxMembers', e.target.value ? parseInt(e.target.value) : undefined)}
                                 min="1"
-                                placeholder="Unlimited"
+                                placeholder="Không giới hạn"
                             />
                         </div>
                     )}
@@ -345,10 +357,10 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                     {/* Form Actions */}
                     <div className="form-actions">
                         <button type="button" className="btn-cancel" onClick={onCancel}>
-                            Cancel
+                            Hủy
                         </button>
                         <button type="submit" className="btn-submit">
-                            {subscription ? 'Update' : 'Add Subscription'}
+                            {subscription ? 'Cập nhật' : 'Thêm gói đăng ký'}
                         </button>
                     </div>
                 </form>
@@ -358,7 +370,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                     <div className="icon-picker-overlay" onClick={() => setShowIconPicker(false)}>
                         <div className="icon-picker" onClick={e => e.stopPropagation()}>
                             <div className="icon-picker-header">
-                                <h3>Select Service</h3>
+                                <h3>Chọn dịch vụ</h3>
                                 <button onClick={() => setShowIconPicker(false)}>
                                     <X size={18} />
                                 </button>
@@ -367,7 +379,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
                                 <Search size={16} />
                                 <input
                                     type="text"
-                                    placeholder="Search services..."
+                                    placeholder="Tìm kiếm dịch vụ..."
                                     value={iconSearch}
                                     onChange={e => setIconSearch(e.target.value)}
                                     autoFocus

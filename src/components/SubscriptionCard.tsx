@@ -98,7 +98,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 <div className="sub-card-body">
                     <div className="price-row">
                         <span className="price">
-                            {formatCurrency(subscription.price, subscription.currency)}
+                            {formatCurrency(subscription.price, subscription.currency)}{subscription.billingCycle === 'yearly' ? '/năm' : '/tháng'}
                         </span>
                         {getStatusBadge()}
                     </div>

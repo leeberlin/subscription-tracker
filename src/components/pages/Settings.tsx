@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Download, Upload, Save, FolderOpen, Moon, Sun, Globe, Mail, Send, CheckCircle, XCircle, Loader, HelpCircle, X, ExternalLink } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { sendTestEmail, getMembersNeedingPaymentForEmail, sendReminderEmail, initEmailJS } from '../../utils/emailUtils';
+import { save, open } from '@tauri-apps/plugin-dialog';
+import { writeTextFile, readTextFile } from '@tauri-apps/plugin-fs';
 import './Settings.css';
+
+// Helper to detect if running in Tauri environment
+const isTauri = () => {
+    return typeof window !== 'undefined' && '__TAURI__' in window;
+};
 
 export interface AppSettings {
     theme: 'light' | 'dark' | 'system';
@@ -74,43 +81,202 @@ const Settings: React.FC = () => {
 
     const handleExport = async () => {
         try {
-            // Get subscription data
-            const data = localStorage.getItem('subscription-tracker-data') || '[]';
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+            // Get ALL user data for complete backup
+            const subscriptionData = localStorage.getItem('subscription-tracker-data') || '[]';
+            const settingsData = localStorage.getItem('subscription-tracker-settings');
 
-            // Create download link
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `subscription-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            // Parse to validate JSON
+            const subscriptions = JSON.parse(subscriptionData);
+            const appSettings = settingsData ? JSON.parse(settingsData) : null;
+
+            // Create comprehensive backup with metadata
+            const backup = {
+                // Metadata for cross-platform compatibility
+                meta: {
+                    version: '1.0.0',
+                    appVersion: '0.1.3',
+                    exportDate: new Date().toISOString(),
+                    platform: navigator.platform,
+                    totalSubscriptions: subscriptions.length,
+                    totalMembers: subscriptions.reduce((acc: number, sub: any) => {
+                        const directMembers = sub.members?.length || 0;
+                        const familyMembers = sub.familyGroups?.reduce((sum: number, fg: any) => sum + (fg.members?.length || 0), 0) || 0;
+                        return acc + directMembers + familyMembers;
+                    }, 0),
+                    totalFamilies: subscriptions.reduce((acc: number, sub: any) => acc + (sub.familyGroups?.length || 0), 0),
+                },
+                // All subscription data with families and members
+                subscriptions: subscriptions,
+                // User settings (optional, null if not set)
+                settings: appSettings,
+            };
+
+            const jsonContent = JSON.stringify(backup, null, 2);
+            const dateStr = new Date().toISOString().split('T')[0];
+            const defaultFileName = `subscription-tracker-backup-${dateStr}.json`;
+
+            if (isTauri()) {
+                // Use Tauri's native save dialog
+                const filePath = await save({
+                    defaultPath: defaultFileName,
+                    filters: [{
+                        name: 'JSON',
+                        extensions: ['json']
+                    }],
+                    title: settings.language === 'vi' ? 'Lưu file backup' : 'Save backup file'
+                });
+
+                if (filePath) {
+                    // Write file using Tauri's fs plugin
+                    await writeTextFile(filePath, jsonContent);
+
+                    // Show success message
+                    alert(settings.language === 'vi'
+                        ? `✅ Xuất dữ liệu thành công!\n\n📊 ${backup.meta.totalSubscriptions} gói subscription\n👥 ${backup.meta.totalMembers} thành viên\n👨‍👩‍👧 ${backup.meta.totalFamilies} nhóm family\n⚙️ Cài đặt: ${appSettings ? 'Có' : 'Không'}\n\n📁 File: ${filePath}`
+                        : `✅ Export successful!\n\n📊 ${backup.meta.totalSubscriptions} subscriptions\n👥 ${backup.meta.totalMembers} members\n👨‍👩‍👧 ${backup.meta.totalFamilies} family groups\n⚙️ Settings: ${appSettings ? 'Yes' : 'No'}\n\n📁 File: ${filePath}`
+                    );
+                }
+            } else {
+                // Browser fallback - use Blob download
+                const blob = new Blob([jsonContent], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = defaultFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                // Show success message
+                alert(settings.language === 'vi'
+                    ? `✅ Xuất dữ liệu thành công!\n\n📊 ${backup.meta.totalSubscriptions} gói subscription\n👥 ${backup.meta.totalMembers} thành viên\n👨‍👩‍👧 ${backup.meta.totalFamilies} nhóm family\n⚙️ Cài đặt: ${appSettings ? 'Có' : 'Không'}`
+                    : `✅ Export successful!\n\n📊 ${backup.meta.totalSubscriptions} subscriptions\n👥 ${backup.meta.totalMembers} members\n👨‍👩‍👧 ${backup.meta.totalFamilies} family groups\n⚙️ Settings: ${appSettings ? 'Yes' : 'No'}`
+                );
+            }
         } catch (error) {
             console.error('Export failed:', error);
+            alert(settings.language === 'vi'
+                ? '❌ Xuất dữ liệu thất bại. Vui lòng thử lại.'
+                : '❌ Export failed. Please try again.');
         }
     };
 
-    const handleImport = () => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = async (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-                try {
-                    const text = await file.text();
-                    const data = JSON.parse(text);
-                    localStorage.setItem('subscription-tracker-data', JSON.stringify(data));
-                    window.location.reload();
-                } catch (error) {
-                    console.error('Import failed:', error);
-                    alert('Invalid backup file');
+    const handleImport = async () => {
+        // Helper function to process imported data
+        const processImportData = async (text: string) => {
+            const data = JSON.parse(text);
+
+            // Check if this is the new backup format (with meta) or legacy format (array only)
+            let subscriptions: any[];
+            let importedSettings: any = null;
+            let meta: any = null;
+
+            if (data.meta && data.subscriptions) {
+                // New format with metadata
+                meta = data.meta;
+                subscriptions = data.subscriptions;
+                importedSettings = data.settings;
+
+                // Validate subscription data structure
+                if (!Array.isArray(subscriptions)) {
+                    throw new Error('Invalid backup format: subscriptions must be an array');
                 }
+            } else if (Array.isArray(data)) {
+                // Legacy format - just an array of subscriptions
+                subscriptions = data;
+            } else {
+                throw new Error('Invalid backup format');
             }
+
+            // Validate each subscription has required fields
+            for (const sub of subscriptions) {
+                if (!sub.id || !sub.appName) {
+                    throw new Error('Invalid subscription data: missing id or appName');
+                }
+                // Ensure familyGroups and members arrays exist
+                if (!sub.familyGroups) sub.familyGroups = [];
+                if (!sub.members) sub.members = [];
+            }
+
+            // Confirm import with user
+            const totalMembers = subscriptions.reduce((acc: number, sub: any) => {
+                const directMembers = sub.members?.length || 0;
+                const familyMembers = sub.familyGroups?.reduce((sum: number, fg: any) => sum + (fg.members?.length || 0), 0) || 0;
+                return acc + directMembers + familyMembers;
+            }, 0);
+            const totalFamilies = subscriptions.reduce((acc: number, sub: any) => acc + (sub.familyGroups?.length || 0), 0);
+
+            const confirmMsg = settings.language === 'vi'
+                ? `Bạn có chắc muốn nhập dữ liệu này?\n\n📊 ${subscriptions.length} gói subscription\n👥 ${totalMembers} thành viên\n👨‍👩‍👧 ${totalFamilies} nhóm family\n⚙️ Cài đặt: ${importedSettings ? 'Có' : 'Không'}\n${meta ? `\n📅 Ngày xuất: ${new Date(meta.exportDate).toLocaleDateString('vi-VN')}\n💻 Platform: ${meta.platform}` : ''}\n\n⚠️ Điều này sẽ GHI ĐÈ toàn bộ dữ liệu hiện tại!`
+                : `Are you sure you want to import this data?\n\n📊 ${subscriptions.length} subscriptions\n👥 ${totalMembers} members\n👨‍👩‍👧 ${totalFamilies} family groups\n⚙️ Settings: ${importedSettings ? 'Yes' : 'No'}\n${meta ? `\n📅 Export date: ${new Date(meta.exportDate).toLocaleDateString('en-US')}\n💻 Platform: ${meta.platform}` : ''}\n\n⚠️ This will REPLACE all current data!`;
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            // Save subscription data
+            localStorage.setItem('subscription-tracker-data', JSON.stringify(subscriptions));
+
+            // Save settings if included in backup
+            if (importedSettings) {
+                localStorage.setItem('subscription-tracker-settings', JSON.stringify(importedSettings));
+            }
+
+            // Show success and reload
+            alert(settings.language === 'vi'
+                ? '✅ Nhập dữ liệu thành công! Trang sẽ được tải lại.'
+                : '✅ Import successful! Page will reload.');
+
+            window.location.reload();
         };
-        input.click();
+
+        try {
+            if (isTauri()) {
+                // Use Tauri's native open dialog
+                const filePath = await open({
+                    filters: [{
+                        name: 'JSON',
+                        extensions: ['json']
+                    }],
+                    multiple: false,
+                    title: settings.language === 'vi' ? 'Chọn file backup' : 'Select backup file'
+                });
+
+                if (!filePath || Array.isArray(filePath)) {
+                    return; // User cancelled or invalid selection
+                }
+
+                // Read file using Tauri's fs plugin
+                const text = await readTextFile(filePath);
+                await processImportData(text);
+            } else {
+                // Browser fallback - use file input
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                        try {
+                            const text = await file.text();
+                            await processImportData(text);
+                        } catch (error: any) {
+                            console.error('Import failed:', error);
+                            alert(settings.language === 'vi'
+                                ? `❌ Nhập dữ liệu thất bại!\n\nLỗi: ${error.message || 'File không hợp lệ'}`
+                                : `❌ Import failed!\n\nError: ${error.message || 'Invalid backup file'}`);
+                        }
+                    }
+                };
+                input.click();
+            }
+        } catch (error: any) {
+            console.error('Import failed:', error);
+            alert(settings.language === 'vi'
+                ? `❌ Nhập dữ liệu thất bại!\n\nLỗi: ${error.message || 'File không hợp lệ'}`
+                : `❌ Import failed!\n\nError: ${error.message || 'Invalid backup file'}`);
+        }
     };
 
     const handleSendTestEmail = async () => {

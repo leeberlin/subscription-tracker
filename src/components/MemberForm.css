@@ -576,3 +576,65 @@
     color: var(--text-tertiary);
     font-size: 0.8125rem;
 }
+
+/* ===== Billing Cycle Toggle ===== */
+.billing-cycle-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.cycle-btn {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cycle-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.cycle-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* ===== Price Display ===== */
+.price-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    background: rgba(99, 102, 241, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.price-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+}
+
+.price-value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.02em;
+}
+
+/* ===== Phone Field Styles ===== */
+.form-field input[type="tel"] {
+    letter-spacing: 0.05em;
+}

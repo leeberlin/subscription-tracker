@@ -1,6 +1,6 @@
 [package]
 name = "subscription-tracker"
-version = "0.1.4"
+version = "0.2.0"
 description = "A modern desktop app for managing shared subscriptions and tracking member payments"
 authors = ["Lee Berlin <phamtuan17892@gmail.com>"]
 edition = "2021"
