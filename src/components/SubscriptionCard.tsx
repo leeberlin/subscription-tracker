@@ -3,7 +3,7 @@ import { Subscription, Member, MemberFormData, CATEGORY_CONFIG } from '../types/
 import { formatDate, getExpirationStatus, formatCurrency, getDaysUntilExpiration } from '../utils/dateUtils';
 import { getServiceIcon } from '../data/serviceIcons';
 import { ConfirmDialog } from './ConfirmDialog';
-import { Trash2, Edit3, Users, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { Trash2, Edit3, Users, ChevronDown, ChevronUp, RefreshCw, FileSpreadsheet } from 'lucide-react';
 import './SubscriptionCard.css';
 
 interface SubscriptionCardProps {
@@ -14,12 +14,14 @@ interface SubscriptionCardProps {
     onEditMember?: (subscriptionId: string, memberId: string, data: Partial<MemberFormData>) => void;
     onDeleteMember?: (subscriptionId: string, memberId: string) => void;
     onSendReminder?: (subscription: Subscription, member: Member) => void;
+    onImportMembers?: () => void;
 }
 
 export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     subscription,
     onEdit,
     onDelete,
+    onImportMembers,
 }) => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -66,17 +68,26 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                         </span>
                     </div>
                     <div className="card-actions">
+                        {onImportMembers && subscription.isShared && (
+                            <button
+                                className="action-btn import"
+                                onClick={onImportMembers}
+                                title="Nhập từ Excel"
+                            >
+                                <FileSpreadsheet size={16} />
+                            </button>
+                        )}
                         <button
                             className="action-btn edit"
                             onClick={() => onEdit(subscription)}
-                            title="Edit"
+                            title="Sửa"
                         >
                             <Edit3 size={16} />
                         </button>
                         <button
                             className="action-btn delete"
                             onClick={handleDeleteClick}
-                            title="Delete"
+                            title="Xóa"
                         >
                             <Trash2 size={16} />
                         </button>

@@ -124,12 +124,10 @@ const Subscriptions: React.FC = () => {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleImportMembers = (subscription: Subscription) => {
         setImportTargetSub(subscription);
         setShowImport(true);
     };
-    void handleImportMembers; // Prevent unused variable error
 
     const handleImportComplete = (members: ImportedMemberData[]) => {
         if (!importTargetSub) return;
@@ -311,6 +309,7 @@ const Subscriptions: React.FC = () => {
                                 onEditMember={(subId, memberId, data) => updateMember(subId, defaultGroupId, memberId, data)}
                                 onDeleteMember={(subId, memberId) => deleteMember(subId, defaultGroupId, memberId)}
                                 onSendReminder={handleSendReminder}
+                                onImportMembers={() => handleImportMembers(subscription)}
                             />
                         );
                     })}
