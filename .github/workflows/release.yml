@@ -17,7 +17,7 @@ jobs:
           - platform: 'macos-14'
             args: '--target aarch64-apple-darwin'
             name: 'macOS (Apple Silicon)'
-          - platform: 'macos-13'
+          - platform: 'macos-14'
             args: '--target x86_64-apple-darwin'
             name: 'macOS (Intel)'
           - platform: 'ubuntu-22.04'
