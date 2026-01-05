@@ -3,7 +3,8 @@ import { Plus, Search, Filter, SortAsc, SortDesc } from 'lucide-react';
 import { useSubscriptions } from '../../hooks/useSubscriptions';
 import { SubscriptionCard } from '../SubscriptionCard';
 import { SubscriptionForm } from '../SubscriptionForm';
-import { Subscription, SubscriptionFormData, Member, CATEGORY_CONFIG, SubscriptionCategory } from '../../types/subscription';
+import { ImportExcel, ImportedMemberData } from '../ImportExcel';
+import { Subscription, SubscriptionFormData, Member, MemberFormData, CATEGORY_CONFIG, SubscriptionCategory } from '../../types/subscription';
 import './Subscriptions.css';
 
 type SortBy = 'name' | 'price' | 'expiration' | 'created';
@@ -15,6 +16,7 @@ const Subscriptions: React.FC = () => {
         addSubscription,
         updateSubscription,
         deleteSubscription,
+        addFamilyGroup,
         addMember,
         updateMember,
         deleteMember,
@@ -27,6 +29,8 @@ const Subscriptions: React.FC = () => {
     const [filterCategory, setFilterCategory] = useState<SubscriptionCategory | 'all'>('all');
     const [sortBy, setSortBy] = useState<SortBy>('name');
     const [sortAsc, setSortAsc] = useState(true);
+    const [showImport, setShowImport] = useState(false);
+    const [importTargetSub, setImportTargetSub] = useState<Subscription | null>(null);
 
     // Filter and sort subscriptions
     const filteredSubscriptions = useMemo(() => {
@@ -118,6 +122,88 @@ const Subscriptions: React.FC = () => {
             setSortBy(newSortBy);
             setSortAsc(true);
         }
+    };
+
+    const handleImportMembers = (subscription: Subscription) => {
+        setImportTargetSub(subscription);
+        setShowImport(true);
+    };
+
+    const handleImportComplete = (members: ImportedMemberData[]) => {
+        if (!importTargetSub) return;
+
+        // Group members by family name
+        const membersByFamily: Map<string, ImportedMemberData[]> = new Map();
+        const DEFAULT_FAMILY = '__default__';
+
+        members.forEach(memberData => {
+            const familyKey = memberData.familyName?.trim() || DEFAULT_FAMILY;
+            if (!membersByFamily.has(familyKey)) {
+                membersByFamily.set(familyKey, []);
+            }
+            membersByFamily.get(familyKey)!.push(memberData);
+        });
+
+        // Get existing family groups for this subscription
+        const existingFamilies = new Map(
+            (importTargetSub.familyGroups || []).map(fg => [fg.name.toLowerCase(), fg.id])
+        );
+
+        // Process each family group
+        membersByFamily.forEach((familyMembers, familyName) => {
+            let targetGroupId: string;
+
+            if (familyName === DEFAULT_FAMILY) {
+                // Use the first existing group or create a default one
+                if (importTargetSub.familyGroups?.length > 0) {
+                    targetGroupId = importTargetSub.familyGroups[0].id;
+                } else {
+                    // Create default family group
+                    const today = new Date().toISOString().split('T')[0];
+                    const nextYear = new Date();
+                    nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+                    const newGroup = addFamilyGroup(importTargetSub.id, {
+                        name: 'Nhóm mặc định',
+                        purchaseDate: today,
+                        expirationDate: nextYear.toISOString().split('T')[0],
+                    });
+                    targetGroupId = newGroup?.id || 'default';
+                }
+            } else {
+                // Check if family exists (case-insensitive)
+                const existingGroupId = existingFamilies.get(familyName.toLowerCase());
+
+                if (existingGroupId) {
+                    targetGroupId = existingGroupId;
+                } else {
+                    // Create new family group with this name
+                    const today = new Date().toISOString().split('T')[0];
+                    const nextYear = new Date();
+                    nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+                    const newGroup = addFamilyGroup(importTargetSub.id, {
+                        name: familyName,
+                        purchaseDate: today,
+                        expirationDate: nextYear.toISOString().split('T')[0],
+                    });
+
+                    if (newGroup) {
+                        targetGroupId = newGroup.id;
+                        existingFamilies.set(familyName.toLowerCase(), newGroup.id);
+                    } else {
+                        // Fallback to first group
+                        targetGroupId = importTargetSub.familyGroups?.[0]?.id || 'default';
+                    }
+                }
+            }
+
+            // Add all members to the target group
+            familyMembers.forEach(memberData => {
+                const { familyName: _, ...memberFormData } = memberData;
+                addMember(importTargetSub.id, targetGroupId, memberFormData);
+            });
+        });
     };
 
     return (
@@ -223,6 +309,7 @@ const Subscriptions: React.FC = () => {
                                 onEditMember={(subId, memberId, data) => updateMember(subId, defaultGroupId, memberId, data)}
                                 onDeleteMember={(subId, memberId) => deleteMember(subId, defaultGroupId, memberId)}
                                 onSendReminder={handleSendReminder}
+                                onImportMembers={() => handleImportMembers(subscription)}
                             />
                         );
                     })}
@@ -235,6 +322,19 @@ const Subscriptions: React.FC = () => {
                     subscription={editingSubscription}
                     onSubmit={handleFormSubmit}
                     onCancel={handleFormCancel}
+                />
+            )}
+
+            {/* Import Excel Modal */}
+            {showImport && importTargetSub && (
+                <ImportExcel
+                    subscriptionName={importTargetSub.appName}
+                    existingFamilies={(importTargetSub.familyGroups || []).map(fg => fg.name)}
+                    onImport={handleImportComplete}
+                    onClose={() => {
+                        setShowImport(false);
+                        setImportTargetSub(null);
+                    }}
                 />
             )}
         </div>

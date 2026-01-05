@@ -176,7 +176,7 @@ export const CloudSyncPanel: React.FC<CloudSyncPanelProps> = ({
                                 <span className="value">{lastSyncTimeFormatted}</span>
                             </div>
                             <div className="sync-status-row">
-                                <span className="label">Backup trên cloud:</span>
+                                <span className="label">Sao lưu trên đám mây:</span>
                                 <span className="value">{lastCloudBackupTimeFormatted}</span>
                             </div>
                         </div>
@@ -256,7 +256,7 @@ export const CloudSyncPanel: React.FC<CloudSyncPanelProps> = ({
                                 <polyline points="17 8 12 3 7 8" />
                                 <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
-                            <span>Tải lên Cloud</span>
+                            <span>Tải lên đám mây</span>
                         </button>
 
                         <button
@@ -269,7 +269,7 @@ export const CloudSyncPanel: React.FC<CloudSyncPanelProps> = ({
                                 <polyline points="7 10 12 15 17 10" />
                                 <line x1="12" y1="15" x2="12" y2="3" />
                             </svg>
-                            <span>Khôi phục từ Cloud</span>
+                            <span>Khôi phục từ đám mây</span>
                         </button>
                     </div>
 
@@ -299,7 +299,7 @@ export const CloudSyncPanel: React.FC<CloudSyncPanelProps> = ({
                             <line x1="12" y1="16" x2="12" y2="12" />
                             <line x1="12" y1="8" x2="12.01" y2="8" />
                         </svg>
-                        <p>Dữ liệu được lưu vào folder trên Google Drive của bạn. Bạn có thể truy cập và quản lý backup từ Google Drive.</p>
+                        <p>Dữ liệu được lưu vào thư mục trên Google Drive của bạn. Bạn có thể truy cập và quản lý bản sao lưu từ Google Drive.</p>
                     </div>
                 </div>
             </div>

@@ -195,7 +195,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({
                                     <span className="category-name">{cat.label}</span>
                                 </div>
                                 <div className="category-stats">
-                                    <span className="category-count">{cat.count} app</span>
+                                    <span className="category-count">{cat.count} ứng dụng</span>
                                     <span className="category-spend">{formatCurrency(cat.spend, 'VND')}</span>
                                 </div>
                             </div>

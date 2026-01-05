@@ -219,7 +219,7 @@ export const translations: Record<Language, Translations> = {
         },
         dashboard: {
             title: 'Tổng quan',
-            totalSubscriptions: 'Tổng subscription',
+            totalSubscriptions: 'Tổng gói đăng ký',
             monthlySpending: 'Chi phí/tháng',
             expiringSoon: 'Sắp hết hạn',
             totalMembers: 'Thành viên',

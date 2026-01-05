@@ -168,7 +168,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                             <div className="setting-group">
                                 <label className="setting-label" htmlFor="currency">
                                     <span className="label-text">Tiền tệ mặc định</span>
-                                    <span className="label-description">Đơn vị tiền tệ cho subscription mới</span>
+                                    <span className="label-description">Đơn vị tiền tệ cho gói đăng ký mới</span>
                                 </label>
                                 <select
                                     id="currency"
@@ -267,7 +267,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                                 <div className="backup-info">
                                     <h3>Xuất dữ liệu</h3>
-                                    <p>Tải file backup để chia sẻ hoặc upload lên Google Drive, Dropbox...</p>
+                                    <p>Tải file sao lưu để chia sẻ hoặc tải lên Google Drive, Dropbox...</p>
                                 </div>
                                 <button className="backup-btn export" onClick={onExportData}>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -289,7 +289,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                 </div>
                                 <div className="backup-info">
                                     <h3>Nhập dữ liệu</h3>
-                                    <p>Khôi phục từ file backup (từ bạn bè hoặc cloud storage)</p>
+                                    <p>Khôi phục từ file sao lưu (từ bạn bè hoặc lưu trữ đám mây)</p>
                                 </div>
                                 <label className="backup-btn import">
                                     <input
@@ -314,7 +314,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                                     <line x1="12" y1="17" x2="12.01" y2="17" />
                                 </svg>
                                 <div>
-                                    <strong>Mẹo:</strong> Để chia sẻ dữ liệu giữa các thiết bị, xuất file backup và lưu vào Google Drive hoặc gửi qua email/Telegram.
+                                    <strong>Mẹo:</strong> Để chia sẻ dữ liệu giữa các thiết bị, xuất file sao lưu và lưu vào Google Drive hoặc gửi qua email/Telegram.
                                 </div>
                             </div>
 

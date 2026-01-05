@@ -250,7 +250,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
                                     <circle cx="12" cy="12" r="10" />
                                     <polyline points="12 6 12 12 16 14" />
                                 </svg>
-                                Timeline hết hạn
+                                Lịch trình hết hạn
                             </h3>
                         </div>
                         <div className="chart-content">

@@ -18,6 +18,12 @@ export interface Member {
     nextPaymentDate: string;
     status: MemberStatus;
     notes?: string;
+    // Social links
+    socialLinks?: {
+        zalo?: string;
+        discord?: string;
+        telegram?: string;
+    };
 }
 
 export type MemberStatus = 'active' | 'pending' | 'overdue' | 'inactive';
@@ -30,6 +36,7 @@ export interface Subscription {
     expirationDate: string;  // Ngày hết hạn chung
     price: number;           // Giá gốc mỗi gói
     currency: string;
+    billingCycle: 'monthly' | 'yearly';  // NEW: Billing cycle
     notes?: string;
     autoRenew: boolean;
     notificationDays: number;
@@ -61,6 +68,7 @@ export interface SubscriptionFormData {
     expirationDate: string;
     price: number;
     currency: string;
+    billingCycle: 'monthly' | 'yearly';  // NEW
     notes?: string;
     autoRenew: boolean;
     notificationDays: number;
@@ -85,6 +93,12 @@ export interface MemberFormData {
     amountPaid: number;
     nextPaymentDate: string;
     notes?: string;
+    // Social links
+    socialLinks?: {
+        zalo?: string;
+        discord?: string;
+        telegram?: string;
+    };
 }
 
 export const CATEGORY_CONFIG: Record<SubscriptionCategory, { label: string; emoji: string; gradient: string }> = {

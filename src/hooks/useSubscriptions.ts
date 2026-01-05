@@ -28,6 +28,7 @@ function loadFromStorage(): Subscription[] {
             isShared: sub.isShared ?? false,
             members: sub.members ?? [],
             familyGroups: sub.familyGroups ?? [],
+            billingCycle: sub.billingCycle ?? 'monthly',
         }));
     } catch {
         return getSampleSubscriptions();
@@ -56,6 +57,7 @@ function getSampleSubscriptions(): Subscription[] {
             expirationDate: futureDate(12),
             price: 179000,
             currency: 'VND',
+            billingCycle: 'monthly',
             notes: 'Multiple family groups',
             autoRenew: true,
             notificationDays: 7,
@@ -106,6 +108,7 @@ function getSampleSubscriptions(): Subscription[] {
             expirationDate: futureDate(2),
             price: 260000,
             currency: 'VND',
+            billingCycle: 'monthly',
             notes: 'Family plan shared',
             autoRenew: true,
             notificationDays: 7,
@@ -134,6 +137,7 @@ function getSampleSubscriptions(): Subscription[] {
             expirationDate: futureDate(4),
             price: 59000,
             currency: 'VND',
+            billingCycle: 'monthly',
             autoRenew: true,
             notificationDays: 7,
             color: '#1DB954',
@@ -149,6 +153,7 @@ function getSampleSubscriptions(): Subscription[] {
             expirationDate: futureDate(9),
             price: 500000,
             currency: 'VND',
+            billingCycle: 'monthly',
             autoRenew: true,
             notificationDays: 7,
             color: '#10A37F',
@@ -359,7 +364,13 @@ export function useSubscriptions() {
     }, [subscriptions]);
 
     const getTotalMonthlySpend = useCallback((): number => {
-        return subscriptions.reduce((sum, sub) => sum + sub.price, 0);
+        return subscriptions.reduce((sum, sub) => {
+            // Convert yearly prices to monthly for estimation
+            if (sub.billingCycle === 'yearly') {
+                return sum + (sub.price / 12);
+            }
+            return sum + sub.price;
+        }, 0);
     }, [subscriptions]);
 
     const getMembersNeedingPayment = useCallback((days: number = 7): { subscription: Subscription; familyGroup: FamilyGroup; member: Member }[] => {

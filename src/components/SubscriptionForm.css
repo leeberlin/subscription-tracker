@@ -292,6 +292,40 @@
     background: var(--primary-light);
 }
 
+/* ===== Billing Cycle Toggle ===== */
+.billing-cycle-toggle {
+    display: flex;
+    gap: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+}
+
+.cycle-btn {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border: none;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cycle-btn:first-child {
+    border-right: 1px solid var(--border-color);
+}
+
+.cycle-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+.cycle-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
 /* ===== Checkbox ===== */
 .checkbox-group {
     margin-top: 0.25rem;
